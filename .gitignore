@@ -8,14 +8,6 @@
 .env.backup
 .env.production
 .phpunit.result.cache
-# Firebase credentials
-storage/firebase/*.json
-storage/app/firebase/*.json
-
-# Otros archivos sensibles
-.env
-.env.backup
-.env.production
 
 Homestead.json
 Homestead.yaml

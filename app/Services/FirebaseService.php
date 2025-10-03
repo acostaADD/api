@@ -2,15 +2,33 @@
 
 namespace App\Services;
 
-use Kreait\Firebase\Contract\Firestore;
+use Kreait\Firebase\Factory;
 
 class FirebaseService
 {
     protected $firestore;
 
-    public function __construct(Firestore $firestore)
+    public function __construct()
     {
-        $this->firestore = $firestore->database();
+        // Verificar si hay credenciales en variable de entorno (producción)
+        $credentialsJson = env('FIREBASE_CREDENTIALS_JSON');
+        
+        if ($credentialsJson) {
+            // Decodificar el JSON de la variable de entorno
+            $credentials = json_decode($credentialsJson, true);
+            
+            // Crear archivo temporal con las credenciales
+            $tempFile = storage_path('app/firebase-temp.json');
+            file_put_contents($tempFile, json_encode($credentials));
+            
+            $factory = (new Factory)->withServiceAccount($tempFile);
+        } else {
+            // Usar archivo local (desarrollo)
+            $credentialsFile = config('firebase.projects.app.credentials.file');
+            $factory = (new Factory)->withServiceAccount($credentialsFile);
+        }
+        
+        $this->firestore = $factory->createFirestore()->database();
     }
 
     /**
